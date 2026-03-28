@@ -26,7 +26,7 @@ def get_weather_text():
     }
 
     # 抽出したい時間帯
-    target_times = ["09:00:00", "12:00:00", "15:00:00", "18:00:00", "21:00:00"]
+    target_times = ["00:00:00", "03:00:00", "06:00:00", "09:00:00", "11:00:00"]
 
     for en_name, jp_name in target_cities.items():
         url = f"https://api.openweathermap.org/data/2.5/forecast?q={en_name}&appid={OWM_API_KEY}&units=metric&lang=ja"
@@ -95,4 +95,4 @@ if __name__ == "__main__":
     print(weather_message)
     
     # 本番投稿
-    post_to_karotter(weather_message)
+    post_to_karotter(weather_message+"　（これはテスト投稿です）")
