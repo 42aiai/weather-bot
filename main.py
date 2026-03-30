@@ -3,7 +3,7 @@ import requests
 import hashlib
 
 def get_weather():
-    api_key = os.getenv("OWM_API_KEY") # 金庫の名前「OWM_API_KEY」に合わせました
+    api_key = os.getenv("OWM_API_KEY")
     cities = {"東京": "Tokyo", "大阪": "Osaka", "福岡": "Fukuoka"}
     icons = {"Clear": "☀️晴れ", "Clouds": "☁️曇り", "Rain": "☔雨", "Snow": "❄️雪", "Drizzle": "🌦️", "Thunderstorm": "⚡"}
     
@@ -34,8 +34,7 @@ def post(text):
         print("Error: ID or PW not found.")
         return
 
-    # トークンを作らず、IDとPWをそのまま使ってリクエストしてみる
-    # (もし以前この方式で動いていたなら、これが確実です)
+    # IDとPWを直接送る方式
     url = "https://api.karotter.com/post"
     params = {
         "id": user_id,
@@ -44,9 +43,13 @@ def post(text):
     }
     
     try:
-        # paramsとして渡すと、requestsが自動で安全にエンコードしてくれます
         res = requests.get(url, params=params, timeout=10)
         print(f"Post status: {res.status_code}")
-        print(f"Response: {res.text}") # サーバーからの生の返事もログに出すようにしました
+        print(f"Response: {res.text}")
     except Exception as e:
         print(f"Post Error: {e}")
+
+# ここが重要です！これがないとプログラムが動き出しません
+if __name__ == "__main__":
+    msg = get_weather()
+    post(msg)
