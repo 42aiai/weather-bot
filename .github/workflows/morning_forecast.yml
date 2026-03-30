@@ -18,5 +18,5 @@ jobs:
       - name: Run
         env:
           KAROTTER_TOKEN: ${{ secrets.KAROTTER_TOKEN }}
-          OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+          OPENWEATHER_API_KEY: ${{ secrets.OWM_API_KEY }}
         run: python main.py
