@@ -27,26 +27,26 @@ def get_weather():
         return "天気データの取得に失敗しました。"
 
 def post(text):
-    # SecretsからIDとPWを取得
     user_id = os.getenv("KAROTTER_ID")
     user_pw = os.getenv("KAROTTER_PW")
     
     if not user_id or not user_pw:
-        print("Error: KAROTTER_ID or PW not found.")
+        print("Error: ID or PW not found.")
         return
 
-    # IDとPWからトークンを生成（以前のロジックを再現）
-    token = hashlib.sha256((user_id + user_pw).encode()).hexdigest()
-    
-    # カロッターへ送信
+    # トークンを作らず、IDとPWをそのまま使ってリクエストしてみる
+    # (もし以前この方式で動いていたなら、これが確実です)
     url = "https://api.karotter.com/post"
-    params = {"token": token, "text": text}
+    params = {
+        "id": user_id,
+        "password": user_pw,
+        "text": text
+    }
+    
     try:
+        # paramsとして渡すと、requestsが自動で安全にエンコードしてくれます
         res = requests.get(url, params=params, timeout=10)
         print(f"Post status: {res.status_code}")
+        print(f"Response: {res.text}") # サーバーからの生の返事もログに出すようにしました
     except Exception as e:
         print(f"Post Error: {e}")
-
-if __name__ == "__main__":
-    msg = get_weather()
-    post(msg)
