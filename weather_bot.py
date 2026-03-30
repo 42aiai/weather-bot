@@ -1,31 +1,54 @@
 import requests
 import os
-from datetime import datetime, timedelta, timezone
-
-OWM_API_KEY = os.getenv("OWM_API_KEY")
-CITIES = {"Tokyo,jp": "東京", "Osaka,jp": "大阪", "Fukuoka,jp": "福岡"}
 
 def get_weather_forecast_text():
-    jst = timezone(timedelta(hours=9))
-    now = datetime.now(jst)
-    today_api_str = now.strftime('%Y-%m-%d')
-    report = [f"【{now.strftime('%m/%d')} 今日の予報】"]
-    target_times = ["00:00:00", "03:00:00", "06:00:00", "09:00:00", "12:00:00"]
-
-    for en, jp in CITIES.items():
-        url = f"https://api.openweathermap.org/data/2.5/forecast?q={en}&appid={OWM_API_KEY}&units=metric&lang=ja"
-        data = requests.get(url).json()
-        if "list" not in data: continue
-        
-        city_f = []
-        for t in target_times:
-            target = f"{today_api_str} {t}"
-            f = next((item for item in data["list"] if target in item["dt_txt"]), None)
-            if f:
-                pop = int(f.get("pop", 0) * 100)
-                icon = "☔" if pop >= 50 else ("☁" if pop >= 20 else "☀")
-                city_f.append(f"{icon}{int(f['main']['temp'])}℃")
-        report.append(f"\n📍{jp}\n {' | '.join(city_f)}")
+    """OpenWeatherMapから3都市の予報を取得してテキストにする"""
+    # GitHubのSecretsに保存したAPIキーを取得
+    # ※もしSecrets名が違う場合は、ここを合わせるかGitHub側を修正してください
+    api_key = os.getenv("OWM_API_KEY")
     
-    report.append("\n(左から9時/12時/15時/18時/21時)\n#天気予報")
-    return "\n".join(report)
+    if not api_key:
+        return "⚠️ 天気予報エラー: APIキーが設定されていません。"
+
+    cities = {
+        "東京": "Tokyo",
+        "大阪": "Osaka",
+        "福岡": "Fukuoka"
+    }
+    
+    # お天気コードを日本語に変換するマッピング（簡易版）
+    weather_icons = {
+        "Clear": "☀️晴れ",
+        "Clouds": "☁️曇り",
+        "Rain": "☔雨",
+        "Drizzle": "🌦️霧雨",
+        "Thunderstorm": "⚡雷雨",
+        "Snow": "❄️雪",
+        "Mist": "🌫️霧"
+    }
+
+    results = []
+    try:
+        for name, city_en in cities.items():
+            # Current Weather API または 5 Day Forecast API を使用
+            url = f"https://api.openweathermap.org/data/2.5/weather?q={city_en},jp&appid={api_key}&units=metric&lang=ja"
+            res = requests.get(url, timeout=10).json()
+
+            if res.get("cod") != 200:
+                results.append(f"{name}: データ取得失敗")
+                continue
+
+            # 天気と気温を取得
+            main_weather = res["weather"][0]["main"]
+            weather_jp = weather_icons.get(main_weather, "❓不明")
+            temp_max = res["main"]["temp_max"]
+            temp_min = res["main"]["temp_min"]
+
+            results.append(f"{name}: {weather_jp} (最高{temp_max:.1f}℃ / 最低{temp_min:.1f}℃)")
+            
+    except Exception as e:
+        return f"⚠️ 天気予報エラー: {e}"
+
+    header = "☀️【今日の天気予報】\n\n"
+    footer = "\n\n(OpenWeatherMap提供)"
+    return header + "\n".join(results) + footer
