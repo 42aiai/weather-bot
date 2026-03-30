@@ -17,6 +17,7 @@ jobs:
         run: pip install requests
       - name: Run
         env:
-          KAROTTER_TOKEN: ${{ secrets.KAROTTER_TOKEN }}
-          OPENWEATHER_API_KEY: ${{ secrets.OWM_API_KEY }}
+          KAROTTER_ID: ${{ secrets.KAROTTER_ID }}
+          KAROTTER_PW: ${{ secrets.KAROTTER_PW }}
+          OWM_API_KEY: ${{ secrets.OWM_API_KEY }} # ここをOWMに合わせました
         run: python main.py
