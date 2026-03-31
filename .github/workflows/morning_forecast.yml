@@ -15,16 +15,21 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-          cache: 'pip' # キャッシュを有効化
           
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install -r requirements.txt
+          # 1. pip自体を最新にする
+          python -m pip install --upgrade pip
+          
+          # 2. requestsをインストール
+          pip install requests
+          
+          # 3. KarotterPyをドキュメント通りのコマンドでインストール
+          # (念のためURLをダブルクォーテーションで囲んでいます)
+          pip install "git+https://github.com/kav0tter/KarotterPy.git"
           
       - name: Run
         env:
-          # Settings > Secrets で設定した APIキー（kar_live__...）
           KAROTTER_API_KEY: ${{ secrets.KAROTTER_API_KEY }}
           OWM_API_KEY: ${{ secrets.OWM_API_KEY }}
         run: python main.py
