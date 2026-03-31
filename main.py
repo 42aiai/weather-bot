@@ -1,7 +1,6 @@
 import os
 import requests
 from datetime import datetime, timedelta, timezone
-# クイックスタート通りのインポート名
 from karotterpy import KarotterDevClient
 
 def get_weather():
@@ -16,7 +15,6 @@ def get_weather():
     w_day = week_days[now.weekday()]
     
     target_hours = [9, 12, 15, 18, 21]
-    # 案3のレイアウト
     results = [f"【{date_str}({w_day}) 9/12/15/18/21時】"]
 
     try:
@@ -39,7 +37,6 @@ def get_weather():
                     forecasts.append(f"{icon}{temp}{pop_str}")
             
             results.append(f"📍{name}|{'|'.join(forecasts)}")
-            
         return "\n".join(results)
     except Exception as e:
         print(f"Weather Error: {e}")
@@ -47,19 +44,11 @@ def get_weather():
 
 def post(text):
     if not text: return
-    
-    # 金庫からAPIキーを取得
     api_key = os.getenv("KAROTTER_API_KEY")
-    
     try:
         # クイックスタート通りの初期化
         client = KarotterDevClient(api_key)
-        
-        # 認証確認（ログに表示）
-        me = client.users.me()
-        print(f"Auth Success: Logged in as {me.username}")
-        
-        # クイックスタート通りの投稿メソッド
+        # 投稿
         client.tweets.create(text)
         print("Post Success!")
     except Exception as e:
@@ -68,8 +57,6 @@ def post(text):
 if __name__ == "__main__":
     msg = get_weather()
     if msg:
-        # 200文字制限の最終チェック
         if len(msg) > 200:
             msg = msg[:197] + "..."
-        print(f"--- Message ---\n{msg}")
         post(msg)
