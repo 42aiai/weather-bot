@@ -1,11 +1,19 @@
 import os
+import uuid
 import requests
 from datetime import datetime, timezone, timedelta
-from karotterpy import KarotterDevClient
 
 # --- 設定 ---
 OWM_API_KEY = os.environ["OWM_API_KEY"]
 KAROTTER_API_KEY = os.environ["KAROTTER_API_KEY"]
+
+BASE_URL = "https://api.karotter.com/api/developer"
+
+KAROTTER_HEADERS = {
+    "Authorization": f"Bearer {KAROTTER_API_KEY}",
+    "X-Client-Type": "web",
+    "X-Device-Id": str(uuid.uuid4()),
+}
 
 CITIES = [
     {"name": "東京", "lat": 35.6895, "lon": 139.6917},
@@ -69,7 +77,7 @@ def find_forecast_for_hour(forecast: dict, target_dt: datetime) -> dict | None:
 
     return best
 
-def build_city_line(city_name: str, forecasts_for_hours: list[dict | None]) -> str:
+def build_city_line(city_name: str, forecasts_for_hours: list) -> str:
     parts = []
     for f in forecasts_for_hours:
         if f is None:
@@ -84,6 +92,17 @@ def build_city_line(city_name: str, forecasts_for_hours: list[dict | None]) -> s
             parts.append(f"{emoji}{temp}")
 
     return f"📍{city_name}｜" + "｜".join(parts)
+
+def post_to_karotter(text: str) -> int:
+    """Karotter Developer API でテキスト投稿し、投稿IDを返す"""
+    resp = requests.post(
+        f"{BASE_URL}/posts",
+        json={"content": text},
+        headers=KAROTTER_HEADERS,
+        timeout=10,
+    )
+    resp.raise_for_status()
+    return resp.json()["post"]["id"]
 
 def main():
     now_jst = datetime.now(JST)
@@ -115,9 +134,8 @@ def main():
     post_text = "\n".join(lines)
     print("投稿内容:\n", post_text)
 
-    client = KarotterDevClient(KAROTTER_API_KEY)
-    client.tweets.create(post_text)
-    print("投稿完了！")
+    post_id = post_to_karotter(post_text)
+    print(f"投稿完了！ post_id={post_id}")
 
 if __name__ == "__main__":
     main()
