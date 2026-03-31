@@ -2,14 +2,15 @@ name: Morning Weather
 
 on:
   schedule:
-    - cron: '0 22 * * *' # UTC 22:00 = JST 7:00
+    - cron: '0 22 * * *' # JST 7:00
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -18,16 +19,14 @@ jobs:
           
       - name: Install dependencies
         run: |
-          # 1. pip自体を最新にする
+          # python -m を使うのが最も確実です
           python -m pip install --upgrade pip
+          python -m pip install requests
+          python -m pip install git+https://github.com/kav0tter/KarotterPy.git
           
-          # 2. requestsをインストール
-          pip install requests
-          
-          # 3. KarotterPyをドキュメント通りのコマンドでインストール
-          # (念のためURLをダブルクォーテーションで囲んでいます)
-          pip install "git+https://github.com/kav0tter/KarotterPy.git"
-          
+      - name: Check files
+        run: ls -R  # ファイルが本当にあるかログに表示させる（デバッグ用）
+
       - name: Run
         env:
           KAROTTER_API_KEY: ${{ secrets.KAROTTER_API_KEY }}
