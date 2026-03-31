@@ -1,0 +1,2 @@
+requests
+karotterpy @ git+https://github.com/kav0tter/KarotterPy.git
