@@ -48,7 +48,6 @@ def post(text):
     try:
         # クイックスタート通りの初期化
         client = KarotterDevClient(api_key)
-        # 投稿
         client.tweets.create(text)
         print("Post Success!")
     except Exception as e:
