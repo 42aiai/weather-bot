@@ -1,2 +1,2 @@
 requests
-KarotterPy
+KarotterPy @ git+https://github.com/kav0tter/KarotterPy.git
