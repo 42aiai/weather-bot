@@ -1,7 +1,7 @@
 import os
 import requests
 from datetime import datetime, timedelta, timezone
-# ライブラリ名とクラス名を最新ドキュメントに合わせて修正
+# ドキュメント通り小文字の karotterpy からインポート
 from karotterpy import KarotterDevClient
 
 def get_weather():
@@ -27,7 +27,6 @@ def get_weather():
             
             forecasts = []
             today = now.date()
-            
             for item in data["list"]:
                 dt_jst = datetime.fromtimestamp(item["dt"], jst)
                 if dt_jst.date() == today and dt_jst.hour in target_hours:
@@ -35,36 +34,33 @@ def get_weather():
                     icon = icons.get(w_key, "☁️")
                     temp = int(item["main"]["temp"])
                     pop = int(item.get("pop", 0) * 100)
-                    
                     pop_str = f" {pop}%" if pop >= 20 else ""
                     forecasts.append(f"{icon}{temp}{pop_str}")
             
             results.append(f"📍{name}|{'|'.join(forecasts)}")
             
         return "\n".join(results)
-        
     except Exception as e:
         print(f"Weather Error: {e}")
         return None
 
 def post(text):
-    if not text:
-        return
+    if not text: return
+    if len(text) > 200: text = text[:197] + "..."
     
-    # APIキーを読み込み
-    api_key = os.getenv("KAROTTER_API_KEY")
+    # APIキーを取得
+    karotter_key = os.getenv("KAROTTER_API_KEY")
     
     try:
-        # 最新のAPIクライアントを作成
-        client = KarotterDevClient(api_key)
-        # 投稿作成（ドキュメントの tweets.create を使用）
-        res = client.tweets.create(text)
-        print(f"Post Success!")
+        # ドキュメントのクイックスタート通りの書き方
+        client = KarotterDevClient(karotter_key)
+        client.tweets.create(text)
+        print("Post Success!")
     except Exception as e:
         print(f"KarotterPy Error: {e}")
 
 if __name__ == "__main__":
     msg = get_weather()
     if msg:
-        print(f"--- Sending Message (Length: {len(msg)}) ---\n{msg}")
+        print(f"--- Sending Message ---\n{msg}")
         post(msg)
