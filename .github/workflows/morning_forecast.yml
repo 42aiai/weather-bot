@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout your code
         uses: actions/checkout@v4
       
       - name: Set up Python
@@ -19,13 +19,18 @@ jobs:
           
       - name: Install dependencies
         run: |
-          # python -m を使うのが最も確実です
-          python -m pip install --upgrade pip
-          python -m pip install requests
-          python -m pip install git+https://github.com/kav0tter/KarotterPy.git
+          # 1. 基礎ツールの更新
+          python -m pip install --upgrade pip setuptools wheel
           
-      - name: Check files
-        run: ls -R  # ファイルが本当にあるかログに表示させる（デバッグ用）
+          # 2. requestsのインストール
+          python -m pip install requests
+          
+          # 3. KarotterPyを一度クローンして、その中身から直接インストール
+          # これなら pip install git+... で失敗する問題を回避できます
+          git clone https://github.com/kav0tter/KarotterPy.git
+          cd KarotterPy
+          python -m pip install .
+          cd ..
 
       - name: Run
         env:
