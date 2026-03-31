@@ -1,7 +1,7 @@
 import os
 import requests
 from datetime import datetime, timedelta, timezone
-# ドキュメント通り小文字の karotterpy からインポート
+# クイックスタート通りのインポート
 from karotterpy import KarotterDevClient
 
 def get_weather():
@@ -46,15 +46,22 @@ def get_weather():
 
 def post(text):
     if not text: return
-    if len(text) > 200: text = text[:197] + "..."
     
-    # APIキーを取得
-    karotter_key = os.getenv("KAROTTER_API_KEY")
+    # APIキーを取得（kar_live__...）
+    api_key = os.getenv("KAROTTER_API_KEY")
     
     try:
-        # ドキュメントのクイックスタート通りの書き方
-        client = KarotterDevClient(karotter_key)
+        # --- クイックスタートのコードをそのまま適用 ---
+        client = KarotterDevClient(api_key)
+
+        # 自分のユーザー情報を取得（認証チェック）
+        me = client.users.me()
+        print(f"Logged in as: {me.username}")
+
+        # 投稿を作成
         client.tweets.create(text)
+        # ---------------------------------------------
+        
         print("Post Success!")
     except Exception as e:
         print(f"KarotterPy Error: {e}")
